@@ -1,36 +1,17 @@
+#include "operations.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct {
-  uint8_t s : 1;
-  uint8_t z : 2;
-  uint8_t ac : 2;
-  uint8_t p : 2;
-  uint8_t c : 1;
-} flags;
-
-typedef struct {
-  uint8_t a;
-  uint8_t b;
-  uint8_t c; // paired with b
-  uint8_t d;
-  uint8_t e; // paired with d
-  uint8_t h;
-  uint8_t l; // paired with h
-  uint16_t pc;
-  uint16_t sp;
-  flags *flags;
-} registers;
-
 void print_state(registers *state) {
-  printf("a: %d, b: %d, c: %d, e: %d, h: %d, l: %d, pc: %d, sp: %d", state->a,
-         state->b, state->c, state->d, state->e, state->h, state->l, state->pc,
-         state->sp);
+  printf("a: %d, b: %d, c: %d, d: %d, e: %d, h: %d, l: %d, pc: %d, sp: %d",
+         state->a, state->b, state->c, state->d, state->e, state->h, state->l,
+         state->pc, state->sp);
 }
 
 int main(int argc, char *argv[]) {
-  registers *state =
+  registers *state = malloc(sizeof(registers));
+  state =
       &(registers){.a = 0,
                    .b = 0,
                    .c = 0,
@@ -66,8 +47,9 @@ void decode_op(registers *state, uint8_t *memory) {
   case 0xed:
   case 0xfd: // NOP
     break;
+  case 0x01:
   default:
-    unimplemented_op(state);
+    unimplemented_op(opcode);
   }
   state->pc += op_width;
 }
