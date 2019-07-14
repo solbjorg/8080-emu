@@ -1,6 +1,9 @@
 #ifndef RESOLVES_H
 #define RESOLVES_H
+
+#include "operations.h"
 #include <stdint.h>
+#include <stdio.h>
 
 /**
  * Resolves various opcodes, usually the ones that contain addressing within 1 byte, e.g. mov instructions.
@@ -15,5 +18,7 @@ enum reg resolve_reg(uint8_t reg);
 
 /* Takes in (lowest) 2 bits, returns the register pair those map to. */
 enum reg resolve_pair(uint8_t reg);
+
+uint8_t *get_reg(enum reg reg, registers *state);
 
 #endif

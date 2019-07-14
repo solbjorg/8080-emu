@@ -69,32 +69,34 @@ int decode_op(registers *state, uint8_t *memory) {
 
 	if (is_lxi(opcode)) {
 		enum reg pair = resolve_pair(opcode >> 4);
-		printf("lxi opcode: %02x\n", opcode);
 		switch (pair)
 		{
 		case B:
 			lxi_pair(&state->b, &state->a, memory[state->pc + 1], memory[state->pc + 2]);
-			op_width = 3;
 			break;
 
 		case D:
 			lxi_pair(&state->d, &state->e, memory[state->pc + 1], memory[state->pc + 2]);
-			op_width = 3;
 			break;
 
 		case H:
 			lxi_pair(&state->h, &state->l, memory[state->pc + 1], memory[state->pc + 2]);
-			op_width = 3;
 			break;
 
 		case SP:
 			lxi_sp(&state->sp, memory[state->pc + 1], memory[state->pc + 2]);
-			op_width = 3;
 			break;
 		}
+		op_width = 3;
 	} else if (is_mvi(opcode)) {
-		enum reg reg = resolve_reg(opcode >> 3);
-		unimplemented_op(opcode);
+		enum reg r = resolve_reg(opcode >> 3);
+		if (r == M) {
+			// Not done yet
+		} else {
+			uint8_t *reg = get_reg(r, state);
+			mvi_reg(reg, memory[state->pc + 1]);
+		}
+		op_width = 2;
 	} else {
 		switch (opcode)
 		{
