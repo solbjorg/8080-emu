@@ -8,32 +8,8 @@ bool is_lxi(uint8_t opcode) {
 	return (opcode & 0b11001111) == 1;
 }
 
-void print_state(registers *state) {
-	printf("a: %d, b: %d, c: %d, d: %d, e: %d, h: %d, l: %d, pc: %d, sp: %d", state->a,
-	    state->b, state->c, state->d, state->e, state->h, state->l, state->pc, state->sp);
-}
-
 int main(int argc, char *argv[]) {
-	registers *state = malloc(sizeof(registers));
-
-	state =
-	    &(registers) {
-		.a = 0,
-		.b = 0,
-		.c = 0,
-		.d = 0,
-		.e = 0,
-		.h = 0,
-		.l = 0,
-		.pc = 0,
-		.sp = 0,
-		.flags = NULL
-	};
-	state->flags = malloc(sizeof(flags));
-	state->flags = &(flags) {
-		.s = 0, .z = 0, .ac = 0, .p = 0, .c = 0
-	};
-	uint8_t *memory = malloc(sizeof(uint8_t)*0xffff);
+	state *state = new_state(0xffff);
 	uint16_t length = 0;
 
 	if (argc < 2) {
@@ -45,26 +21,29 @@ int main(int argc, char *argv[]) {
 		fseek(f, 0, SEEK_END);
 		length = ftell(f);
 		fseek(f, 0, SEEK_SET);
-		if (memory) {
-			fread(memory, 1, length, f);
+		if (state->memory) {
+			fread(state->memory, 1, length, f);
 		}
 		fclose(f);
 	} else {
 		puts("File not found.");
 		return 1;
 	}
-	while (state->pc < length) {
-		state->pc += decode_op(state, memory);
+	while (state->regs->pc < length) {
+		state->regs->pc += decode_op(state);
 	}
+	free_state(state);
 	return 0;
 }
 
-void unimplemented_op(uint8_t opcode) {
-	//printf("%d is not yet supported.\n", opcode);
+void unimplemented_op(state *state) {
+	printf("Operation is not yet supported:\n");
+	disassemble_current_opcode(state);
+	exit(0);
 }
 
-int decode_op(registers *state, uint8_t *memory) {
-	uint8_t opcode = memory[state->pc];
+int decode_op(state *state) {
+	uint8_t opcode = state->memory[state->regs->pc];
 	uint8_t op_width = 1;
 
 	if (is_lxi(opcode)) {
@@ -72,29 +51,32 @@ int decode_op(registers *state, uint8_t *memory) {
 		switch (pair)
 		{
 		case B:
-			lxi_pair(&state->b, &state->a, memory[state->pc + 1], memory[state->pc + 2]);
+			lxi_pair(&state->regs->b, &state->regs->a, state->memory[state->regs->pc + 1],
+			    state->memory[state->regs->pc + 2]);
 			break;
 
 		case D:
-			lxi_pair(&state->d, &state->e, memory[state->pc + 1], memory[state->pc + 2]);
+			lxi_pair(&state->regs->d, &state->regs->e, state->memory[state->regs->pc + 1],
+			    state->memory[state->regs->pc + 2]);
 			break;
 
 		case H:
-			lxi_pair(&state->h, &state->l, memory[state->pc + 1], memory[state->pc + 2]);
+			lxi_pair(&state->regs->h, &state->regs->l, state->memory[state->regs->pc + 1],
+			    state->memory[state->regs->pc + 2]);
 			break;
 
 		case SP:
-			lxi_sp(&state->sp, memory[state->pc + 1], memory[state->pc + 2]);
+			lxi_sp(&state->regs->sp, state->memory[state->regs->pc + 1], state->memory[state->regs->pc + 2]);
 			break;
 		}
 		op_width = 3;
 	} else if (is_mvi(opcode)) {
 		enum reg r = resolve_reg(opcode >> 3);
 		if (r == M) {
-			// Not done yet
+			unimplemented_op(state);
 		} else {
-			uint8_t *reg = get_reg(r, state);
-			mvi_reg(reg, memory[state->pc + 1]);
+			uint8_t *reg = get_reg(r, state->regs);
+			mvi_reg(reg, state->memory[state->regs->pc + 1]);
 		}
 		op_width = 2;
 	} else {
@@ -116,7 +98,7 @@ int decode_op(registers *state, uint8_t *memory) {
 			break;
 
 		default:
-			unimplemented_op(opcode);
+			unimplemented_op(state);
 		}
 	}
 	return op_width;

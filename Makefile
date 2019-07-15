@@ -3,8 +3,8 @@ SRCDIR=src
 BINDIR=bin
 CC=gcc
 CFLAGS=-I$(IDIR)
-OBJ=$(SRCDIR)/main.o $(SRCDIR)/operations.o $(SRCDIR)/resolves.o
-DEPS=operations.h resolves.h main.h
+OBJ=$(SRCDIR)/main.o $(SRCDIR)/operations.o $(SRCDIR)/resolves.o $(SRCDIR)/types.o $(SRCDIR)/disassembler.o
+DEPS=operations.h resolves.h main.h types.h disassembler.h
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

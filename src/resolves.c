@@ -1,46 +1,12 @@
 #include "resolves.h"
+
 enum reg resolve_reg(uint8_t reg) {
-	reg &= 7;
-	enum reg ref;
-	switch (reg)
-	{
-	case 0:
-		ref = B;
-		break;
-
-	case 1:
-		ref = C;
-		break;
-
-	case 2:
-		ref = D;
-		break;
-
-	case 3:
-		ref = E;
-		break;
-
-	case 4:
-		ref = H;
-		break;
-
-	case 5:
-		ref = L;
-		break;
-
-	case 6:
-		ref = M;
-		break;
-
-	case 7:
-		ref = A;
-		break;
-	}
-	return ref;
+	return (enum reg)(reg & 7);
 }
 
 enum reg resolve_pair(uint8_t reg) {
 	reg &= 3;
+
 	enum reg ref;
 	switch (reg)
 	{
@@ -63,29 +29,29 @@ enum reg resolve_pair(uint8_t reg) {
 	return ref;
 }
 
-uint8_t *get_reg(enum reg reg, registers *state) {
+uint8_t *get_reg(enum reg reg, registers *const regs) {
 	switch (reg)
 	{
 	case B:
-		return &state->b;
+		return &regs->b;
 
 	case C:
-		return &state->c;
+		return &regs->c;
 
 	case D:
-		return &state->d;
+		return &regs->d;
 
 	case E:
-		return &state->e;
+		return &regs->e;
 
 	case H:
-		return &state->h;
+		return &regs->h;
 
 	case L:
-		return &state->l;
+		return &regs->l;
 
 	case A:
-		return &state->a;
+		return &regs->a;
 
 	default:
 		fprintf(stderr, "Invalid register (e.g. M, SP) given to get_reg.\n");
