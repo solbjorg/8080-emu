@@ -1,5 +1,9 @@
 #include "resolves.h"
 
+bool is_jmp(uint8_t opcode) {
+	return ((opcode & 0xc7) == 0xc2) || (opcode == 0xc3);
+}
+
 inline bool is_push(uint8_t opcode) {
 	return (opcode & 0xcf) == 0xc5;
 }

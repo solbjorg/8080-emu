@@ -13,6 +13,7 @@ enum reg {
 	B, C, D, E, H, L, M, A, SP
 };
 
+bool is_jmp(uint8_t opcode);
 bool is_mvi(uint8_t opcode);
 bool is_lxi(uint8_t opcode);
 bool is_push(uint8_t opcode);

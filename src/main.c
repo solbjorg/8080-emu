@@ -66,7 +66,48 @@ int decode_op(state *state) {
 			fprintf(stderr, "Malformed lxi expression.");
 		}
 		op_width = 3;
-	} else if (is_mvi(instruction[0])) {    // begin mvi
+	} else if (is_jmp(instruction[0])) { // begin jmp
+		bool condition;
+		if (instruction[0] == 0xc3) {
+			condition = true; // JMP
+		} else {
+			switch ((instruction[0] & 0x40) >> 3)
+			{
+			case 0:
+				condition = !state->flags->z; // JNZ
+				break;
+
+			case 1:
+				condition = state->flags->z; // JZ
+				break;
+
+			case 2:
+				condition = !state->flags->c; // JNC
+				break;
+
+			case 3:
+				condition = state->flags->c; // JC
+				break;
+
+			case 4:
+				condition = !state->flags->p; // JPO
+				break;
+
+			case 5:
+				condition = state->flags->p; // JPE
+				break;
+
+			case 6:
+				condition = !state->flags->s; // JP
+				break;
+
+			case 7:
+				condition = state->flags->s; // JM
+				break;
+			}
+		}
+		op_width = jmp_condition(condition, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+	} else if (is_mvi(instruction[0])) { // begin mvi
 		enum reg r = resolve_reg(instruction[0] >> 3);
 		if (r == M) {
 			mvi_mem(state);
@@ -120,41 +161,6 @@ int decode_op(state *state) {
 		case 0xdd:
 		case 0xed:
 		case 0xfd: // NOP
-			break;
-
-		case 0xc3: //JMP
-			op_width = jmp_condition(true, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xc2: // JNZ
-			op_width = jmp_condition(!state->flags->z, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xca: //JZ
-			op_width = jmp_condition(state->flags->z, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-
-		case 0xd2: //JNC
-			op_width = jmp_condition(!state->flags->c, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xda: //JC
-			op_width = jmp_condition(state->flags->c, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xe2: // JPO
-			op_width = jmp_condition(!state->flags->p, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xea: //JPE
-			op_width = jmp_condition(state->flags->p, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xf2: //JP
-			op_width = jmp_condition(state->flags->s, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-			break;
-
-		case 0xfa: //JM
-			op_width = jmp_condition(!state->flags->s, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
 			break;
 
 		default:
