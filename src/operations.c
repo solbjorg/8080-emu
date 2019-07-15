@@ -1,5 +1,11 @@
 #include "operations.h"
 
+void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack) {
+	// TODO this is so unsafe lol.
+	stack[-1] = first_reg;
+	stack[-2] = second_reg;
+}
+
 uint16_t jmp_condition(bool condition, uint16_t *pc, uint16_t addr) {
 	if (condition) {
 		*pc = addr;

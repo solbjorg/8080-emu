@@ -6,9 +6,9 @@
 
 typedef struct {
 	uint8_t s : 1;
-	uint8_t z : 2;
-	uint8_t ac : 2;
-	uint8_t p : 2;
+	uint8_t z : 1;
+	uint8_t ac : 1;
+	uint8_t p : 1;
 	uint8_t c : 1;
 } flags;
 
