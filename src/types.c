@@ -1,7 +1,7 @@
 #include "types.h"
 
 void print_state(state const *const state) {
-	printf("Registers:\na: %02x, b: %02x, c: %02x, d: %02x, e: %02x, h: %02x, l: %02x, pc: %02x, sp: %02x\n",
+	printf("Registers:\na: %02x, b: %02x, c: %02x, d: %02x, e: %02x, h: %02x, l: %02x, pc: %04x, sp: %04x\n",
 	    state->regs->a, state->regs->b, state->regs->c, state->regs->d, state->regs->e, state->regs->h, state->regs->l,
 	    state->regs->pc, state->regs->sp);
 	printf("Flags:\ns: %d, z: %d, ac: %d, p: %d, c: %d\n", state->flags->s, state->flags->z, state->flags->ac,

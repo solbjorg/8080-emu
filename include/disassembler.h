@@ -6,6 +6,6 @@
 #include <stdlib.h>
 #include "types.h"
 
-uint8_t disassemble_current_opcode(state const *const state);
+uint8_t disassemble_current_opcode(uint8_t *const instruction);
 
 #endif

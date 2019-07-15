@@ -1,6 +1,12 @@
 #include "operations.h"
 
-
+uint16_t jmp_condition(bool condition, uint16_t *pc, uint16_t addr) {
+	if (condition) {
+		*pc = addr;
+		return 0;
+	}
+	return 3;
+}
 
 void lxi_pair(uint8_t *first_reg, uint8_t *second_reg, uint8_t low_data, uint8_t high_data) {
 	*first_reg = high_data;

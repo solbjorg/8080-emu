@@ -1,8 +1,7 @@
 #include "disassembler.h"
 
-uint8_t disassemble_current_opcode(state const *const state) {
-	uint16_t bytesize = 1;
-	uint8_t *instruction = &state->memory[state->regs->pc];
+uint8_t disassemble_current_opcode(uint8_t *const instruction) {
+	uint8_t bytesize = 1;
 
 	switch (instruction[0])
 	{
@@ -141,7 +140,7 @@ uint8_t disassemble_current_opcode(state const *const state) {
 		break;
 
 	case 0x20:
-		printf("RIM");
+		printf("NOP");
 		break;         // empty comment
 
 	case 0x21:

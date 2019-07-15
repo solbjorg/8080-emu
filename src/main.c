@@ -37,50 +37,49 @@ int main(int argc, char *argv[]) {
 }
 
 void unimplemented_op(state *state) {
-	printf("Operation is not yet supported:\n");
-	disassemble_current_opcode(state);
+	printf("Above operation is not yet supported.\n");
+	print_state(state);
 	exit(0);
 }
 
 int decode_op(state *state) {
-	uint8_t opcode = state->memory[state->regs->pc];
+	uint8_t *instruction = &state->memory[state->regs->pc];
+
+	disassemble_current_opcode(instruction);
 	uint8_t op_width = 1;
 
-	if (is_lxi(opcode)) {
-		enum reg pair = resolve_pair(opcode >> 4);
+	if (is_lxi(instruction[0])) { // begin lxi
+		enum reg pair = resolve_pair(instruction[0] >> 4);
 		switch (pair)
 		{
 		case B:
-			lxi_pair(&state->regs->b, &state->regs->a, state->memory[state->regs->pc + 1],
-			    state->memory[state->regs->pc + 2]);
+			lxi_pair(&state->regs->b, &state->regs->a, instruction[1], instruction[2]);
 			break;
 
 		case D:
-			lxi_pair(&state->regs->d, &state->regs->e, state->memory[state->regs->pc + 1],
-			    state->memory[state->regs->pc + 2]);
+			lxi_pair(&state->regs->d, &state->regs->e, instruction[1], instruction[2]);
 			break;
 
 		case H:
-			lxi_pair(&state->regs->h, &state->regs->l, state->memory[state->regs->pc + 1],
-			    state->memory[state->regs->pc + 2]);
+			lxi_pair(&state->regs->h, &state->regs->l, instruction[1], instruction[2]);
 			break;
 
 		case SP:
-			lxi_sp(&state->regs->sp, state->memory[state->regs->pc + 1], state->memory[state->regs->pc + 2]);
+			lxi_sp(&state->regs->sp, instruction[1], instruction[2]);
 			break;
 		}
 		op_width = 3;
-	} else if (is_mvi(opcode)) {
-		enum reg r = resolve_reg(opcode >> 3);
+	} else if (is_mvi(instruction[0])) {    // begin mvi
+		enum reg r = resolve_reg(instruction[0] >> 3);
 		if (r == M) {
 			mvi_mem(state);
 		} else {
 			uint8_t *reg = get_reg(r, state->regs);
-			mvi_reg(reg, state->memory[state->regs->pc + 1]);
+			mvi_reg(reg, instruction[1]);
 		}
 		op_width = 2;
 	} else {
-		switch (opcode)
+		switch (instruction[0])
 		{
 		case 0x00:
 		case 0x08:
@@ -95,6 +94,39 @@ int decode_op(state *state) {
 		case 0xdd:
 		case 0xed:
 		case 0xfd: // NOP
+			break;
+
+		case 0xc3: //JMP
+			op_width = jmp_condition(true, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+			break;
+
+		case 0xc2: // JNZ
+			op_width = jmp_condition(!state->flags->z, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+			break;
+
+		case 0xca: //JZ
+			op_width = jmp_condition(state->flags->z, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+
+		case 0xd2: //JNC
+			op_width = jmp_condition(!state->flags->c, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+			break;
+
+		case 0xda: //JC
+			op_width = jmp_condition(state->flags->c, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+			break;
+
+		case 0xe2: // JPO
+			op_width = jmp_condition(!state->flags->p, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+
+		case 0xea: //JPE
+			op_width = jmp_condition(state->flags->p, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+
+		case 0xf2: //JP
+			op_width = jmp_condition(state->flags->s, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+			break;
+
+		case 0xfa: //JM
+			op_width = jmp_condition(!state->flags->s, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
 			break;
 
 		default:
