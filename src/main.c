@@ -73,7 +73,7 @@ int decode_op(state *state) {
 	} else if (is_mvi(opcode)) {
 		enum reg r = resolve_reg(opcode >> 3);
 		if (r == M) {
-			unimplemented_op(state);
+			mvi_mem(state);
 		} else {
 			uint8_t *reg = get_reg(r, state->regs);
 			mvi_reg(reg, state->memory[state->regs->pc + 1]);
