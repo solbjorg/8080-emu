@@ -164,6 +164,18 @@ int decode_op(state *state) {
 			exit(0);
 		}
 		state->regs->sp += 2;
+	} else if (is_dad(instruction[0])) { // begin dad. untested
+		enum reg pair = resolve_pair_sp(instruction[0] >> 4);
+		uint16_t hl = get_pair_value(H, state);
+		uint16_t rp = get_pair_value(pair, state);
+		uint16_t result = hl + rp;
+		if (result < 0) { // overflow; carry
+			result = 0xffff;
+			state->flags->c = 1;
+		} else {
+			state->flags->c = 0;
+		}
+		set_pair_value(H, result, state);
 	} else if (is_ret(instruction[0])) { // ret
 		bool condition;
 		if (instruction[0] == 0xc1) {

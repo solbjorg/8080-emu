@@ -8,6 +8,10 @@ inline bool is_mov(uint8_t opcode) {
 	return (opcode & 0xc0) == 0x40;
 }
 
+inline bool is_dad(uint8_t opcode) {
+	return (opcode & 0xcf) == 0x09;
+}
+
 inline bool is_inx_or_dcx(uint8_t opcode) {
 	return (opcode & 0xc7) == 0x03;
 }

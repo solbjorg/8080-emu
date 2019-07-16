@@ -16,8 +16,8 @@ uint16_t call_condition(bool condition, state *const state) {
 
 	if (condition) {
 		uint16_t addr = (uint16_t)(instruction[2] << 8) + instruction[1];
-		state->memory[state->regs->sp - 1] = (state->regs->pc + 3) >> 8;
-		state->memory[state->regs->sp - 2] = state->regs->pc + 3;
+		state->memory[state->regs->sp - 1] = (state->regs->pc + 2) >> 8;
+		state->memory[state->regs->sp - 2] = state->regs->pc + 2;
 		state->regs->sp -= 2;
 		state->regs->pc = addr;
 		print_state(state);
