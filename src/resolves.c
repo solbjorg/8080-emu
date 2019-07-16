@@ -4,6 +4,14 @@ inline bool is_mov(uint8_t opcode) {
 	return (opcode & 0xc0) == 0x40;
 }
 
+inline bool is_inx_or_dcx(uint8_t opcode) {
+	return (opcode & 0xc7) == 0x03;
+}
+
+inline bool is_inr_or_dcr(uint8_t opcode) {
+	return (opcode & 0xc6) == 0x04;
+}
+
 inline bool is_call(uint8_t opcode) {
 	return ((opcode & 0xc7) == 0xc4) || (opcode == 0xcd);
 }
@@ -143,7 +151,7 @@ uint8_t *get_reg(enum reg reg, state *const state) {
 		return &state->regs->a;
 
 	case M:
-		return &state->memory[(uint16_t)state->regs->h << 8 + state->regs->l];
+		return &state->memory[get_pair_value(H, state)];
 
 	default:
 		fprintf(stderr, "Invalid register (e.g. M, SP) given to get_reg.\n");
@@ -154,4 +162,66 @@ uint8_t *get_reg(enum reg reg, state *const state) {
 uint8_t get_psw(flags *flags) {
 	// puts flags together into expected representation of PSW, as used by a bunch of instructions.
 	return flags->c + (1 << 1) + (flags->p << 2) + (flags->ac << 4) + (flags->z << 6) + (flags->s << 7);
+}
+
+void set_psw(uint8_t values, flags *flags) {
+	flags->c = (values & 1);
+	flags->p = (values & (1 << 2)) >> 2;
+	flags->ac = (values & (1 << 4)) >> 4;
+	flags->z = (values & (1 << 6)) >> 6;
+	flags->s = (values & (1 << 7)) >> 7;
+}
+
+void set_flags(uint16_t result, flags *flags) {
+	flags->p = !(result % 2);
+	flags->s = (result & (1 << 7)) >> 7;
+	flags->z = result == 0;
+}
+
+uint16_t get_pair_value(enum reg pair, state *const state) {
+	switch (pair)
+	{
+	case B:
+		return (uint16_t)(state->regs->b << 8) + state->regs->c;
+
+	case D:
+		return (uint16_t)(state->regs->d << 8) + state->regs->e;
+
+	case H:
+		return (uint16_t)(state->regs->h << 8) + state->regs->l;
+
+	case A:
+		return (uint16_t)(state->regs->a << 8) + get_psw(state->flags);
+
+	default:
+		fprintf(stderr, "Malformed get_pair_value, pair: %d\n", pair);
+	}
+}
+
+void set_pair_value(enum reg pair, uint16_t value, state *state) {
+	switch (pair)
+	{
+	case B:
+		state->regs->b = value >> 8;
+		state->regs->c = value & 0xff;
+		break;
+
+	case D:
+		state->regs->d = value >> 8;
+		state->regs->e = value & 0xff;
+		break;
+
+	case H:
+		state->regs->h = value >> 8;
+		state->regs->l = value & 0xff;
+		break;
+
+	case A:
+		state->regs->a = value >> 8;
+		set_psw(value & 0xff, state->flags);
+		break;
+
+	default:
+		fprintf(stderr, "Malformed get_pair_value, pair: %d\n", pair);
+	}
 }

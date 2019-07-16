@@ -14,6 +14,8 @@ enum reg {
 };
 
 bool is_mov(uint8_t opcode);
+bool is_inx_or_dcx(uint8_t opcode);
+bool is_inr_or_dcr(uint8_t opcode);
 bool is_call(uint8_t opcode);
 bool is_jmp(uint8_t opcode);
 bool is_mvi(uint8_t opcode);
@@ -43,5 +45,21 @@ enum reg resolve_pair_psw(uint8_t reg);
 
 uint8_t *get_reg(enum reg reg, state *const state);
 uint8_t get_psw(flags *flags);
+
+/**
+ * Bitwise sets flags to values.
+ */
+void set_psw(uint8_t values, flags *flags);
+
+/*
+ * Sets parity, zero, sign, according to the result of the calculation.
+ * E.g. 0 will set Z to 1; 2 will set S and P to 1; etc.
+ * Cannot set carry.
+ */
+void set_flags(uint16_t result, flags *flags);
+
+// Combines BC, DE, HL.
+uint16_t get_pair_value(enum reg pair, state *const state);
+void set_pair_value(enum reg pair, uint16_t value, state *state);
 
 #endif

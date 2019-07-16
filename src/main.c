@@ -42,7 +42,7 @@ int decode_op(state *state) {
 
 	uint8_t op_width = 1;
 
-	if (is_mov(instruction[0])) {
+	if (is_mov(instruction[0])) { // begin mov
 		enum reg src_reg = resolve_reg(instruction[0]);
 		enum reg dst_reg = resolve_reg(instruction[0] >> 3);
 		if ((src_reg == M) && (dst_reg == M)) { // MOV M, M == HLT
@@ -52,7 +52,19 @@ int decode_op(state *state) {
 			uint8_t *dst = get_reg(dst_reg, state);
 			*dst = *src;
 		}
-	} else if (is_lxi(instruction[0])) {  // begin lxi
+	} else if (is_inx_or_dcx(instruction[0])) {             // begin inx/dcx
+		// inefficient. TODO.
+		bool is_dcx = (instruction[0] & (1 << 3)) >> 3; // qv. programming manual pp. 24
+		enum reg pair = resolve_pair_sp(instruction[0] >> 4);
+		uint16_t pair_value = get_pair_value(pair, state);
+		pair_value += is_dcx ? -1 : 1;
+		set_pair_value(pair, pair_value, state);
+	} else if (is_inr_or_dcr(instruction[0])) {
+		bool is_dcr = instruction[0] & 1;
+		uint8_t *reg = get_reg(resolve_reg(instruction[0] >> 3), state);
+		*reg += is_dcr ? -1 : 1;
+		set_flags(*reg, state->flags);
+	} else if (is_lxi(instruction[0])) { // begin lxi
 		enum reg pair = resolve_pair_sp(instruction[0] >> 4);
 		switch (pair)
 		{
@@ -81,7 +93,7 @@ int decode_op(state *state) {
 		if (instruction[0] == 0xc3) {
 			condition = true; // JMP
 		} else {
-			condition = resolve_condition_jmp_or_call(state->flags, (instruction[0] & 0x40) >> 3);
+			condition = resolve_condition_jmp_or_call(state->flags, (instruction[0] & (1 << 3)) >> 3);
 		}
 		op_width = jmp_condition(condition, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
 	} else if (is_call(instruction[0])) { // begin call

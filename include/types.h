@@ -7,7 +7,7 @@
 typedef struct {
 	uint8_t s : 1;
 	uint8_t z : 1;
-	uint8_t ac : 1;
+	uint8_t ac : 1; // I'm going to ignore ac for now, as I don't understand it, and space invaders doesn't use it.
 	uint8_t p : 1;
 	uint8_t c : 1;
 } flags;
