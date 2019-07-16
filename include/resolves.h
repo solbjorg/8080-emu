@@ -22,6 +22,7 @@ bool is_mvi(uint8_t opcode);
 bool is_lxi(uint8_t opcode);
 bool is_push(uint8_t opcode);
 bool is_pull(uint8_t opcode);
+bool is_ret(uint8_t opcode);
 
 /**
  * Takes in (lowest) 3 bits, resolves it as an enum reg (excluding SP).
@@ -31,7 +32,7 @@ bool is_pull(uint8_t opcode);
 enum reg resolve_reg(uint8_t reg);
 
 /**
- * Resolves whether to perform JMP or CALL based on the 3 bits determining
+ * Resolves whether to perform JMP, CALL or RET based on the 3 bits determining
  * the condition, and the flags. Qv. programming manual, pp. 34.
  */
 bool resolve_condition_jmp_or_call(flags *const flags, uint8_t conditional);
@@ -54,7 +55,7 @@ void set_psw(uint8_t values, flags *flags);
 
 /*
  * Sets parity, zero, sign, according to the result of the calculation.
- * E.g. 0 will set Z to 1; 2 will set S and P to 1; etc.
+ * E.g. 0 will set Z to 1; 2 will set S and P to 1, Z to 0; etc.
  * Cannot set carry.
  */
 void set_flags(uint16_t result, flags *flags);

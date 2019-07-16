@@ -101,7 +101,7 @@ int decode_op(state *state) {
 		if (instruction[0] == 0xcd) {
 			condition = true;
 		} else {
-			condition = resolve_condition_jmp_or_call(state->flags, instruction[0] >> 3);
+			condition = resolve_condition_jmp_or_call(state->flags, (instruction[0] & 0x3f) >> 3);
 		}
 		op_width = call_condition(condition, state);
 	} else if (is_mvi(instruction[0])) { // begin mvi
@@ -164,6 +164,17 @@ int decode_op(state *state) {
 			exit(0);
 		}
 		state->regs->sp += 2;
+	} else if (is_ret(instruction[0])) { // ret
+		bool condition;
+		if (instruction[0] == 0xc1) {
+			condition = true; // RET
+		} else {
+			condition = resolve_condition_jmp_or_call(state->flags, (instruction[0] & (1 << 3)) >> 3);
+		}
+		jmp_condition(condition, &state->regs->pc, (uint16_t)(state->memory[state->regs->sp+1]<<8)+state->memory[state->regs->sp]);
+		if (condition) {
+			state->regs->sp += 2;
+		}
 	} else {
 		switch (instruction[0])
 		{

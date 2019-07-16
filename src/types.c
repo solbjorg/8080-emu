@@ -6,6 +6,8 @@ void print_state(state const *const state) {
 	    state->regs->pc, state->regs->sp);
 	printf("Flags:\ns: %d, z: %d, ac: %d, p: %d, c: %d\n", state->flags->s, state->flags->z, state->flags->ac,
 	    state->flags->p, state->flags->c);
+	uint8_t *stack = &state->memory[state->regs->sp];
+	printf("Stack:\n[+2: %02x, +1: %02x, +0: %02x, -1: %02x, -2: %02x]\n", stack[2], stack[1], stack[0], stack[-1], stack[-2]);
 }
 
 registers *new_registers() {

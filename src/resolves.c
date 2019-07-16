@@ -1,5 +1,9 @@
 #include "resolves.h"
 
+inline bool is_ret(uint8_t opcode) {
+	return ((opcode & 0xc6) == 0xc0) || (opcode == 0xc1);
+}
+
 inline bool is_mov(uint8_t opcode) {
 	return (opcode & 0xc0) == 0x40;
 }
