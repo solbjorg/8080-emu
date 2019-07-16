@@ -13,6 +13,7 @@ enum reg {
 	B, C, D, E, H, L, M, A, SP
 };
 
+bool is_mov(uint8_t opcode);
 bool is_call(uint8_t opcode);
 bool is_jmp(uint8_t opcode);
 bool is_mvi(uint8_t opcode);
@@ -40,7 +41,7 @@ bool resolve_condition_jmp_or_call(flags *const flags, uint8_t conditional);
 enum reg resolve_pair_sp(uint8_t reg);
 enum reg resolve_pair_psw(uint8_t reg);
 
-uint8_t *get_reg(enum reg reg, registers *const state);
+uint8_t *get_reg(enum reg reg, state *const state);
 uint8_t get_psw(flags *flags);
 
 #endif

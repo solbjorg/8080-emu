@@ -1,5 +1,9 @@
 #include "resolves.h"
 
+inline bool is_mov(uint8_t opcode) {
+	return (opcode & 0xc0) == 0x40;
+}
+
 inline bool is_call(uint8_t opcode) {
 	return ((opcode & 0xc7) == 0xc4) || (opcode == 0xcd);
 }
@@ -114,29 +118,32 @@ enum reg resolve_pair_psw(uint8_t reg) {
 	return ref;
 }
 
-uint8_t *get_reg(enum reg reg, registers *const regs) {
+uint8_t *get_reg(enum reg reg, state *const state) {
 	switch (reg)
 	{
 	case B:
-		return &regs->b;
+		return &state->regs->b;
 
 	case C:
-		return &regs->c;
+		return &state->regs->c;
 
 	case D:
-		return &regs->d;
+		return &state->regs->d;
 
 	case E:
-		return &regs->e;
+		return &state->regs->e;
 
 	case H:
-		return &regs->h;
+		return &state->regs->h;
 
 	case L:
-		return &regs->l;
+		return &state->regs->l;
 
 	case A:
-		return &regs->a;
+		return &state->regs->a;
+
+	case M:
+		return &state->memory[(uint16_t)state->regs->h << 8 + state->regs->l];
 
 	default:
 		fprintf(stderr, "Invalid register (e.g. M, SP) given to get_reg.\n");

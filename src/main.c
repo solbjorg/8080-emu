@@ -42,7 +42,17 @@ int decode_op(state *state) {
 
 	uint8_t op_width = 1;
 
-	if (is_lxi(instruction[0])) { // begin lxi
+	if (is_mov(instruction[0])) {
+		enum reg src_reg = resolve_reg(instruction[0]);
+		enum reg dst_reg = resolve_reg(instruction[0] >> 3);
+		if ((src_reg == M) && (dst_reg == M)) { // MOV M, M == HLT
+			// HLT here.
+		} else {
+			uint8_t *src = get_reg(src_reg, state);
+			uint8_t *dst = get_reg(dst_reg, state);
+			*dst = *src;
+		}
+	} else if (is_lxi(instruction[0])) {  // begin lxi
 		enum reg pair = resolve_pair_sp(instruction[0] >> 4);
 		switch (pair)
 		{
@@ -74,7 +84,7 @@ int decode_op(state *state) {
 			condition = resolve_condition_jmp_or_call(state->flags, (instruction[0] & 0x40) >> 3);
 		}
 		op_width = jmp_condition(condition, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
-	} else if (is_call(instruction[0])) {
+	} else if (is_call(instruction[0])) { // begin call
 		bool condition;
 		if (instruction[0] == 0xcd) {
 			condition = true;
@@ -83,15 +93,10 @@ int decode_op(state *state) {
 		}
 		op_width = call_condition(condition, state);
 	} else if (is_mvi(instruction[0])) { // begin mvi
-		enum reg r = resolve_reg(instruction[0] >> 3);
-		if (r == M) {
-			mvi_mem(state);
-		} else {
-			uint8_t *reg = get_reg(r, state->regs);
-			mvi_reg(reg, instruction[1]);
-		}
+		uint8_t *reg = get_reg(resolve_reg(instruction[0] >> 3), state);
+		mvi_reg(reg, instruction[1]);
 		op_width = 2;
-	} else if (is_push(instruction[0])) {
+	} else if (is_push(instruction[0])) { // begin push
 		enum reg pair = resolve_pair_psw(instruction[0] >> 4);
 		if (pair == A) {
 			// TODO
