@@ -1,6 +1,10 @@
 #include "resolves.h"
 
-bool is_jmp(uint8_t opcode) {
+inline bool is_call(uint8_t opcode) {
+	return ((opcode & 0xc7) == 0xc4) || (opcode == 0xcd);
+}
+
+inline bool is_jmp(uint8_t opcode) {
 	return ((opcode & 0xc7) == 0xc2) || (opcode == 0xc3);
 }
 
@@ -18,6 +22,46 @@ inline bool is_lxi(uint8_t opcode) {
 
 enum reg resolve_reg(uint8_t reg) {
 	return (enum reg)(reg & 7);
+}
+
+bool resolve_condition_jmp_or_call(flags *const flags, uint8_t conditional) {
+	bool condition;
+
+	switch (conditional)
+	{
+	case 0:
+		condition = !flags->z;  // JNZ
+		break;
+
+	case 1:
+		condition = flags->z;  // JZ
+		break;
+
+	case 2:
+		condition = !flags->c;  // JNC
+		break;
+
+	case 3:
+		condition = flags->c;  // JC
+		break;
+
+	case 4:
+		condition = !flags->p;  // JPO
+		break;
+
+	case 5:
+		condition = flags->p;  // JPE
+		break;
+
+	case 6:
+		condition = !flags->s;  // JP
+		break;
+
+	case 7:
+		condition = flags->s; // JM
+		break;
+	}
+	return condition;
 }
 
 enum reg resolve_pair_sp(uint8_t reg) {

@@ -6,6 +6,19 @@ void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack) {
 	stack[-2] = second_reg;
 }
 
+uint16_t call_condition(bool condition, state *const state) {
+	uint8_t *instruction = &state->memory[state->regs->pc];
+
+	if (condition) {
+		uint16_t addr = (uint16_t)(instruction[2] << 8) + instruction[1];
+		state->memory[state->regs->sp - 1] = addr;
+		state->regs->sp -= 1;
+		state->regs->pc = addr;
+		return 0;
+	}
+	return 3;
+}
+
 uint16_t jmp_condition(bool condition, uint16_t *pc, uint16_t addr) {
 	if (condition) {
 		*pc = addr;

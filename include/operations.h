@@ -5,6 +5,7 @@
 #include "types.h"
 
 // takes a condition, performs jump if it is met; returns amount to skip PC with, which is 0 if jumping and 3 if not.
+uint16_t call_condition(bool condition, state *const state);
 uint16_t jmp_condition(bool condition, uint16_t *pc, uint16_t addr);
 
 void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack);

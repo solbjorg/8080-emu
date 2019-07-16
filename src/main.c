@@ -71,42 +71,17 @@ int decode_op(state *state) {
 		if (instruction[0] == 0xc3) {
 			condition = true; // JMP
 		} else {
-			switch ((instruction[0] & 0x40) >> 3)
-			{
-			case 0:
-				condition = !state->flags->z; // JNZ
-				break;
-
-			case 1:
-				condition = state->flags->z; // JZ
-				break;
-
-			case 2:
-				condition = !state->flags->c; // JNC
-				break;
-
-			case 3:
-				condition = state->flags->c; // JC
-				break;
-
-			case 4:
-				condition = !state->flags->p; // JPO
-				break;
-
-			case 5:
-				condition = state->flags->p; // JPE
-				break;
-
-			case 6:
-				condition = !state->flags->s; // JP
-				break;
-
-			case 7:
-				condition = state->flags->s; // JM
-				break;
-			}
+			condition = resolve_condition_jmp_or_call(state->flags, (instruction[0] & 0x40) >> 3);
 		}
 		op_width = jmp_condition(condition, &state->regs->pc, (uint16_t)(instruction[2]<<8)+instruction[1]);
+	} else if (is_call(instruction[0])) {
+		bool condition;
+		if (instruction[0] == 0xcd) {
+			condition = true;
+		} else {
+			condition = resolve_condition_jmp_or_call(state->flags, instruction[0] >> 3);
+		}
+		op_width = call_condition(condition, state);
 	} else if (is_mvi(instruction[0])) { // begin mvi
 		enum reg r = resolve_reg(instruction[0] >> 3);
 		if (r == M) {
@@ -142,6 +117,7 @@ int decode_op(state *state) {
 
 			default:
 				fprintf(stderr, "Malformed push expression.");
+				exit(0);
 			}
 			state->regs->sp -= 2;
 		}
