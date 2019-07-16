@@ -139,6 +139,22 @@ int decode_op(state *state) {
 		case 0xfd: // NOP
 			break;
 
+		case 0x02: // STAX B
+			state->memory[(uint16_t)(state->regs->b << 8) + state->regs->c] = state->regs->a;
+			break;
+
+		case 0x0a: // LDAX B
+			state->regs->a = state->memory[(uint16_t)(state->regs->b << 8) + state->regs->c];
+			break;
+
+		case 0x12: // STAX D
+			state->memory[(uint16_t)(state->regs->d << 8) + state->regs->e] = state->regs->a;
+			break;
+
+		case 0x1a: // LDAX D
+			state->regs->a = state->memory[(uint16_t)(state->regs->d << 8) + state->regs->e];
+			break;
+
 		default:
 			unimplemented_op(state);
 		}
