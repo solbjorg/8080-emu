@@ -6,6 +6,11 @@ void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack) {
 	stack[-2] = second_reg;
 }
 
+void pull(uint8_t *first_reg, uint8_t *second_reg, uint8_t *stack) {
+	*first_reg = stack[0];
+	*second_reg = stack[1];
+}
+
 uint16_t call_condition(bool condition, state *const state) {
 	uint8_t *instruction = &state->memory[state->regs->pc];
 

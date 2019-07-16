@@ -21,6 +21,7 @@ bool is_jmp(uint8_t opcode);
 bool is_mvi(uint8_t opcode);
 bool is_lxi(uint8_t opcode);
 bool is_push(uint8_t opcode);
+bool is_pull(uint8_t opcode);
 
 /**
  * Takes in (lowest) 3 bits, resolves it as an enum reg (excluding SP).

@@ -110,34 +110,60 @@ int decode_op(state *state) {
 		op_width = 2;
 	} else if (is_push(instruction[0])) { // begin push
 		enum reg pair = resolve_pair_psw(instruction[0] >> 4);
-		if (pair == A) {
-			// TODO
-		} else {
-			uint8_t *stack = &state->memory[state->regs->sp];
-			switch (pair)
-			{
-			case B:
-				push(state->regs->b, state->regs->c, stack);
-				break;
+		uint8_t *stack = &state->memory[state->regs->sp];
+		switch (pair)
+		{
+		case B:
+			push(state->regs->b, state->regs->c, stack);
+			break;
 
-			case D:
-				push(state->regs->d, state->regs->e, stack);
-				break;
+		case D:
+			push(state->regs->d, state->regs->e, stack);
+			break;
 
-			case H:
-				push(state->regs->h, state->regs->l, stack);
-				break;
+		case H:
+			push(state->regs->h, state->regs->l, stack);
+			break;
 
-			case A:
-				push(state->regs->a, get_psw(state->flags), stack);
-				break;
+		case A:
+			push(state->regs->a, get_psw(state->flags), stack);
+			break;
 
-			default:
-				fprintf(stderr, "Malformed push expression.");
-				exit(0);
-			}
-			state->regs->sp -= 2;
+		default:
+			fprintf(stderr, "Malformed push expression.");
+			exit(0);
 		}
+		state->regs->sp -= 2;
+	} else if (is_pull(instruction[0])) { // begin pull TODO
+		enum reg pair = resolve_pair_psw(instruction[0] >> 4);
+		uint8_t *stack = &state->memory[state->regs->sp];
+		switch (pair)
+		{
+		case B:
+			pull(&state->regs->b, &state->regs->c, stack);
+			break;
+
+		case D:
+			pull(&state->regs->d, &state->regs->e, stack);
+			break;
+
+		case H:
+			pull(&state->regs->h, &state->regs->l, stack);
+			break;
+
+		case A:
+		{
+			uint8_t psw;
+			pull(&state->regs->a, &psw, stack);
+			set_psw(psw, state->flags);
+			break;
+		}
+
+		default:
+			fprintf(stderr, "Malformed pull expression.");
+			exit(0);
+		}
+		state->regs->sp += 2;
 	} else {
 		switch (instruction[0])
 		{
