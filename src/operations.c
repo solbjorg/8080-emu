@@ -6,7 +6,7 @@ void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack) {
 	stack[-2] = second_reg;
 }
 
-void pull(uint8_t *first_reg, uint8_t *second_reg, uint8_t *stack) {
+void pop(uint8_t *first_reg, uint8_t *second_reg, uint8_t *stack) {
 	*first_reg = stack[0];
 	*second_reg = stack[1];
 }

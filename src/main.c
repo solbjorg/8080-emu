@@ -134,33 +134,33 @@ int decode_op(state *state) {
 			exit(0);
 		}
 		state->regs->sp -= 2;
-	} else if (is_pull(instruction[0])) { // begin pull TODO
+	} else if (is_pop(instruction[0])) { // begin POP
 		enum reg pair = resolve_pair_psw(instruction[0] >> 4);
 		uint8_t *stack = &state->memory[state->regs->sp];
 		switch (pair)
 		{
 		case B:
-			pull(&state->regs->b, &state->regs->c, stack);
+			pop(&state->regs->b, &state->regs->c, stack);
 			break;
 
 		case D:
-			pull(&state->regs->d, &state->regs->e, stack);
+			pop(&state->regs->d, &state->regs->e, stack);
 			break;
 
 		case H:
-			pull(&state->regs->h, &state->regs->l, stack);
+			pop(&state->regs->h, &state->regs->l, stack);
 			break;
 
 		case A:
 		{
 			uint8_t psw;
-			pull(&state->regs->a, &psw, stack);
+			pop(&state->regs->a, &psw, stack);
 			set_psw(psw, state->flags);
 			break;
 		}
 
 		default:
-			fprintf(stderr, "Malformed pull expression.");
+			fprintf(stderr, "Malformed POP expression.");
 			exit(0);
 		}
 		state->regs->sp += 2;

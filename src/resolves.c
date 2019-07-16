@@ -28,7 +28,7 @@ inline bool is_push(uint8_t opcode) {
 	return (opcode & 0xcf) == 0xc5;
 }
 
-inline bool is_pull(uint8_t opcode) {
+inline bool is_pop(uint8_t opcode) {
 	return (opcode & 0xcf) == 0xc1;
 }
 
