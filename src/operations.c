@@ -51,7 +51,17 @@ void mvi_reg(uint8_t *reg, uint8_t data) {
 void mvi_mem(state *state) {
 	uint16_t M = (uint16_t)state->regs->h << 8 + state->regs->l;
 
-	state->memory[M] = state->memory[state->regs->pc+1];
+	write_to_memory(state, M, state->memory[state->regs->pc+1]);
+}
+
+void write_to_memory(state *state, uint16_t address, uint8_t value) {
+	if (address < 0x2000) {
+		fprintf(stderr, "\nFATAL: Tried to write to ROM. Aborting.");
+		print_state(state);
+		exit(0);
+	} else {
+		state->memory[address] = value;
+	}
 }
 
 bool addition_will_overflow_8(uint8_t op1, uint8_t op2) {

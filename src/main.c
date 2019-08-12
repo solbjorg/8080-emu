@@ -53,10 +53,8 @@ int decode_op(state *state) {
 		} else {
 			uint8_t *src = get_reg(src_reg, state);
 			uint8_t *dst = get_reg(dst_reg, state);
-			if ((dst_reg == M) && (get_pair_value(H, state) < 0x2000)) {
-				fprintf(stderr, "\nFATAL: Tried to write to ROM. Aborting.");
-				print_state(state);
-				exit(0);
+			if (dst_reg == M) {
+				write_to_memory(state, get_pair_value(H, state), *src);
 			} else {
 				*dst = *src;
 			}
@@ -254,11 +252,33 @@ int decode_op(state *state) {
 			break;
 
 		case 0x12: // STAX D
-			state->memory[(uint16_t)(state->regs->d << 8) + state->regs->e] = state->regs->a;
+			write_to_memory(state, (uint16_t)(state->regs->d << 8) + state->regs->e, state->regs->a);
 			break;
 
 		case 0x1a: // LDAX D
 			state->regs->a = state->memory[(uint16_t)(state->regs->d << 8) + state->regs->e];
+			break;
+
+		case 0x22: // SHLD
+			write_to_memory(state, (uint16_t)(instruction[2] << 8) + instruction[1], state->regs->l);
+			write_to_memory(state, (uint16_t)(instruction[2] << 8) + instruction[1] + 1, state->regs->h);
+			op_width = 3;
+			break;
+
+		case 0x2a: // LHLD
+			state->regs->l = state->memory[(uint16_t)(instruction[2] << 8) + instruction[1]];
+			state->regs->h = state->memory[(uint16_t)(instruction[2] << 8) + instruction[1]+1];
+			op_width = 3;
+			break;
+
+		case 0x32:      // STA
+			write_to_memory(state, (uint16_t)(instruction[2] << 8) + instruction[1], state->regs->a);
+			op_width = 3;
+			break;
+
+		case 0x3a:      // LDA
+			state->regs->a = state->memory[(uint16_t)(instruction[2] << 8) + instruction[1]];
+			op_width = 3;
 			break;
 
 		case 0xc6: // ADI
