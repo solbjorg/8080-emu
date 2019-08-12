@@ -178,7 +178,7 @@ int decode_op(state *state) {
 		uint16_t hl = get_pair_value(H, state);
 		uint16_t rp = get_pair_value(pair, state);
 		uint16_t result;
-		if (hl > 0xffff - rp) {
+		if (addition_will_overflow_16(hl, rp)) {
 			// overflow
 			result = 0xffff;
 			state->flags->c = 1;
@@ -261,7 +261,27 @@ int decode_op(state *state) {
 			state->regs->a = state->memory[(uint16_t)(state->regs->d << 8) + state->regs->e];
 			break;
 
-		case 0xeb: // XCHG
+		case 0xc6: // ADI
+			if (addition_will_overflow_8(state->regs->a, instruction[1])) {
+				state->regs->a = 0xff;
+				state->flags->c = 1;
+			} else {
+				state->regs->a += instruction[1];
+				state->flags->c = 0;
+			}
+			set_flags(state->regs->a, state->flags);
+			op_width = 2;
+			print_state(state);
+			break;
+
+		case 0xe6:      // ANI
+			state->regs->a &= instruction[1];
+			state->flags->c = 0;
+			set_flags(state->regs->a, state->flags);
+			op_width = 2;
+			break;
+
+		case 0xeb:      // XCHG
 			SWAP(state->regs->h, state->regs->d);
 			SWAP(state->regs->l, state->regs->e);
 			break;

@@ -53,3 +53,11 @@ void mvi_mem(state *state) {
 
 	state->memory[M] = state->memory[state->regs->pc+1];
 }
+
+bool addition_will_overflow_8(uint8_t op1, uint8_t op2) {
+	return op1 > 0xff - op2;
+}
+
+bool addition_will_overflow_16(uint16_t op1, uint16_t op2) {
+	return op1 > 0xffff - op2;
+}

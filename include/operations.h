@@ -20,4 +20,7 @@ void lxi_pair(uint8_t *first_reg, uint8_t *second_reg, uint8_t low_data, uint8_t
 void mvi_reg(uint8_t *reg, uint8_t data);
 void mvi_mem(state *state);
 
+bool addition_will_overflow_8(uint8_t op1, uint8_t op2);
+bool addition_will_overflow_16(uint16_t op1, uint16_t op2);
+
 #endif
