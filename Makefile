@@ -10,7 +10,7 @@ DEPS=operations.h resolves.h main.h types.h disassembler.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 emumake: $(OBJ)
-	$(CC) -o bin/8080emu $^ $(CFLAGS)
+	$(CC) -o bin/8080emu $^ $(CFLAGS) -lSDL2
 	rm -f $(SRCDIR)/*.o
 
 clean:

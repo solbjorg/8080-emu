@@ -1,6 +1,11 @@
 #include "main.h"
 
 int main(int argc, char *argv[]) {
+	SDL_Init(SDL_INIT_VIDEO);
+	SDL_Window *window;
+	SDL_Renderer *renderer;
+	SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, 0, &window, &renderer);
+
 	state *state = new_state(0xffff);
 	uint16_t length = 0;
 
@@ -22,8 +27,41 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	while (state->regs->pc < length) {
-		state->regs->pc += decode_op(state);
+		uint8_t op_width = decode_op(state);
+		if (op_width == 255) {
+			break;
+		} else {
+			state->regs->pc += op_width;
+		}
 	}
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+	SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	for (uint16_t h = 0; h < 224; h++)
+	{
+		for (uint16_t w = 0; w < 32; w++)
+		{
+			uint8_t byte = state->memory[VRAM+32*h+w];
+			for (uint8_t i = 8; i > 0; i--)
+			{
+				if ((byte >> (i-1)) & 1) {
+					SDL_RenderDrawPoint(renderer, w*8+i, h);
+				}
+			}
+			printf("VRAM: %04x\n", VRAM+32*h+w);
+		}
+	}
+	SDL_RenderPresent(renderer);
+	SDL_Event event;
+	while (1) {
+		if (SDL_PollEvent(&event) && (event.type == SDL_QUIT)) {
+			break;
+		}
+	}
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 	free_state(state);
 	return 0;
 }
@@ -31,10 +69,9 @@ int main(int argc, char *argv[]) {
 void unimplemented_op(state *state) {
 	printf("Above operation is not yet supported.\n");
 	print_state(state);
-	exit(0);
 }
 
-int decode_op(state *state) {
+uint8_t decode_op(state *state) {
 	uint8_t *instruction = &state->memory[state->regs->pc];
 
 	printf("%04x: ", state->regs->pc);
@@ -322,6 +359,7 @@ int decode_op(state *state) {
 
 		default:
 			unimplemented_op(state);
+			return 255;
 		}
 	}
 	return op_width;
