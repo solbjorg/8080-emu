@@ -48,6 +48,10 @@ inline bool is_rotate(uint8_t opcode) {
 	return (opcode & 0xe7) == 0x07;
 }
 
+inline bool is_xra(uint8_t opcode) {
+	return (opcode & 0xf8) == 0xa8;
+}
+
 enum reg resolve_reg(uint8_t reg) {
 	return (enum reg)(reg & 7);
 }
