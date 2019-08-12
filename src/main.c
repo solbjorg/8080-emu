@@ -221,6 +221,18 @@ int decode_op(state *state) {
 			state->regs->a = state->memory[(uint16_t)(state->regs->d << 8) + state->regs->e];
 			break;
 
+		case 0xeb: // XCHG
+			SWAP(state->regs->h, state->regs->d);
+			SWAP(state->regs->l, state->regs->e);
+
+		case 0xfe: // CPI
+		{
+			uint16_t r = state->regs->a + (~instruction[1]+1);
+			set_flags(r, state->flags);
+			state->flags->c = instruction[1] > state->regs->a;
+			break;
+		}
+
 		default:
 			unimplemented_op(state);
 		}

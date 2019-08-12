@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define SWAP(x, y)    do { typeof(x) SWAP = x; x = y; y = SWAP; } while (0)
+
 bool is_mvi(uint8_t opcode);
 bool is_lxi(uint8_t opcode);
 
