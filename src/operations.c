@@ -1,9 +1,8 @@
 #include "operations.h"
 
-void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack) {
-	// TODO this is so unsafe lol.
-	stack[-1] = first_reg;
-	stack[-2] = second_reg;
+void push(uint8_t first_reg, uint8_t second_reg, state *state) {
+	write_to_memory(state, state->regs->sp-1, first_reg);
+	write_to_memory(state, state->regs->sp-2, second_reg);
 }
 
 void pop(uint8_t *first_reg, uint8_t *second_reg, uint8_t *stack) {
@@ -16,8 +15,8 @@ uint16_t call_condition(bool condition, state *const state) {
 
 	if (condition) {
 		uint16_t addr = (uint16_t)(instruction[2] << 8) + instruction[1];
-		state->memory[state->regs->sp - 1] = (state->regs->pc + 2) >> 8;
-		state->memory[state->regs->sp - 2] = state->regs->pc + 2;
+		write_to_memory(state, state->regs->sp - 1, (state->regs->pc + 2) >> 8);
+		write_to_memory(state, state->regs->sp - 2, state->regs->pc + 2);
 		state->regs->sp -= 2;
 		state->regs->pc = addr;
 		print_state(state);

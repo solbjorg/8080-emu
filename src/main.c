@@ -121,19 +121,19 @@ int decode_op(state *state) {
 		switch (pair)
 		{
 		case B:
-			push(state->regs->b, state->regs->c, stack);
+			push(state->regs->b, state->regs->c, state);
 			break;
 
 		case D:
-			push(state->regs->d, state->regs->e, stack);
+			push(state->regs->d, state->regs->e, state);
 			break;
 
 		case H:
-			push(state->regs->h, state->regs->l, stack);
+			push(state->regs->h, state->regs->l, state);
 			break;
 
 		case A:
-			push(state->regs->a, get_psw(state->flags), stack);
+			push(state->regs->a, get_psw(state->flags), state);
 			break;
 
 		default:
@@ -244,7 +244,7 @@ int decode_op(state *state) {
 			break;
 
 		case 0x02: // STAX B
-			state->memory[(uint16_t)(state->regs->b << 8) + state->regs->c] = state->regs->a;
+			write_to_memory(state, (uint16_t)(state->regs->b << 8) + state->regs->c, state->regs->a);
 			break;
 
 		case 0x0a: // LDAX B

@@ -9,7 +9,7 @@ uint16_t call_condition(bool condition, state *const state);
 uint16_t jmp_condition(bool condition, uint16_t *pc, uint16_t addr);
 void ret_condition(bool condition, uint16_t *pc, uint16_t addr);
 
-void push(uint8_t first_reg, uint8_t second_reg, uint8_t *stack);
+void push(uint8_t first_reg, uint8_t second_reg, state *state);
 void pop(uint8_t *first_reg, uint8_t *second_reg, uint8_t *stack);
 
 // LXI operation on SP and a register pair, respectively.
