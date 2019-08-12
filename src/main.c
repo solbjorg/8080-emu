@@ -198,6 +198,35 @@ int decode_op(state *state) {
 		if (condition) {
 			state->regs->sp += 2;
 		}
+	} else if (is_rotate(instruction[0])) {
+		uint8_t hi = state->regs->a >> 7;
+		uint8_t lo = state->regs->a & 0x01;
+		switch (instruction[0] >> 3)
+		{
+		case 0:         // RLC
+			state->regs->a <<= 1;
+			state->regs->a += hi;
+			state->flags->c = hi;
+			break;
+
+		case 1:         // RRC
+			state->regs->a >>= 1;
+			state->regs->a += lo << 7;
+			state->flags->c = lo;
+			break;
+
+		case 2:         // RAL
+			state->regs->a <<= 1;
+			state->regs->a += state->flags->c;
+			state->flags->c = hi;
+			break;
+
+		case 3:         // RAR
+			state->regs->a >>= 1;
+			state->regs->a += state->flags->c << 7;
+			state->flags->c = lo;
+			break;
+		}
 	} else {
 		switch (instruction[0])
 		{

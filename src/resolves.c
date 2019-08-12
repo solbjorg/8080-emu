@@ -44,6 +44,10 @@ inline bool is_lxi(uint8_t opcode) {
 	return (opcode & 0xcf) == 0x01;
 }
 
+inline bool is_rotate(uint8_t opcode) {
+	return (opcode & 0xe7) == 0x07;
+}
+
 enum reg resolve_reg(uint8_t reg) {
 	return (enum reg)(reg & 7);
 }
