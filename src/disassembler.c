@@ -3,6 +3,8 @@
 uint8_t disassemble_current_opcode(uint8_t *const instruction) {
 	uint8_t bytesize = 1;
 
+	printf(" %02x ", instruction[0]);
+
 	switch (instruction[0])
 	{
 	case 0x00:

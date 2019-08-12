@@ -41,6 +41,9 @@ int decode_op(state *state) {
 	disassemble_current_opcode(instruction);
 
 	uint8_t op_width = 1;
+	if (state->regs->pc == 0x143d) {
+		print_state(state);
+	}
 
 	if (is_mov(instruction[0])) { // begin mov
 		enum reg src_reg = resolve_reg(instruction[0]);
@@ -50,7 +53,13 @@ int decode_op(state *state) {
 		} else {
 			uint8_t *src = get_reg(src_reg, state);
 			uint8_t *dst = get_reg(dst_reg, state);
-			*dst = *src;
+			if ((dst_reg == M) && (get_pair_value(H, state) < 0x2000)) {
+				fprintf(stderr, "\nFATAL: Tried to write to ROM. Aborting.");
+				print_state(state);
+				exit(0);
+			} else {
+				*dst = *src;
+			}
 		}
 	} else if (is_inx_or_dcx(instruction[0])) {             // begin inx/dcx
 		// inefficient. TODO.
@@ -168,11 +177,13 @@ int decode_op(state *state) {
 		enum reg pair = resolve_pair_sp(instruction[0] >> 4);
 		uint16_t hl = get_pair_value(H, state);
 		uint16_t rp = get_pair_value(pair, state);
-		uint16_t result = hl + rp;
-		if (result < 0) { // overflow; carry
+		uint16_t result;
+		if (hl > 0xffff - rp) {
+			// overflow
 			result = 0xffff;
 			state->flags->c = 1;
 		} else {
+			result = hl + rp;
 			state->flags->c = 0;
 		}
 		set_pair_value(H, result, state);
@@ -224,14 +235,16 @@ int decode_op(state *state) {
 		case 0xeb: // XCHG
 			SWAP(state->regs->h, state->regs->d);
 			SWAP(state->regs->l, state->regs->e);
+			break;
 
 		case 0xfe: // CPI
-		{
-			uint16_t r = state->regs->a + (~instruction[1]+1);
-			set_flags(r, state->flags);
+			set_flags(state->regs->a + (~instruction[1]+1), state->flags);
 			state->flags->c = instruction[1] > state->regs->a;
 			break;
-		}
+
+		case 0xd3: // OUT - TODO
+			op_width = 2;
+			break;
 
 		default:
 			unimplemented_op(state);

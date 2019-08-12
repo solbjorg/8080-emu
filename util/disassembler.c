@@ -8,6 +8,7 @@ void disassemble(uint8_t *buffer, uint16_t length) {
 	while (pc < length) {
 		uint16_t bytesize = 1;
 		uint8_t *instruction = &buffer[pc];
+		printf("%02x: ", pc);
 		switch (instruction[0])
 		{
 		case 0x00:
