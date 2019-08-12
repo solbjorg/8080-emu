@@ -2,6 +2,7 @@
 #define TYPES_H
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 typedef struct {
@@ -28,6 +29,7 @@ typedef struct {
 	registers *	regs;
 	flags *		flags;
 	uint8_t *	memory;
+	bool		inte; // interrupts enabled
 } state;
 
 void print_state(state const *const state);

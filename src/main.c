@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	}
 	while (state->regs->pc < length) {
 		uint8_t op_width = decode_op(state);
-		if (op_width == 255) {
+		if (op_width == 255) { // temporary. TODO.
 			break;
 		} else {
 			state->regs->pc += op_width;
@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
 					SDL_RenderDrawPoint(renderer, w*8+i, h);
 				}
 			}
-			printf("VRAM: %04x\n", VRAM+32*h+w);
 		}
 	}
 	SDL_RenderPresent(renderer);
@@ -348,13 +347,21 @@ uint8_t decode_op(state *state) {
 			SWAP(state->regs->l, state->regs->e);
 			break;
 
+		case 0xd3:         // OUT - TODO
+			op_width = 2;
+			break;
+
 		case 0xfe: // CPI
 			set_flags(state->regs->a + (~instruction[1]+1), state->flags);
 			state->flags->c = instruction[1] > state->regs->a;
 			break;
 
-		case 0xd3: // OUT - TODO
-			op_width = 2;
+		case 0xf3:
+			state->inte = false;
+			break;
+
+		case 0xfb:
+			state->inte = true;
 			break;
 
 		default:

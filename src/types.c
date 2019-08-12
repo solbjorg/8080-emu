@@ -50,6 +50,7 @@ state *new_state(size_t memory_size) {
 	state->regs = new_registers();
 	state->flags = new_flags();
 	state->memory = malloc(sizeof(uint8_t) * memory_size);
+	state->inte = false;
 	return state;
 }
 
