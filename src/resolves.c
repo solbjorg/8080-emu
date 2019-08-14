@@ -52,7 +52,11 @@ inline bool is_xra(uint8_t opcode) {
 	return (opcode & 0xf8) == 0xa8;
 }
 
-enum reg resolve_reg(uint8_t reg) {
+inline bool is_ana(uint8_t opcode) {
+	return (opcode & 0xf8) == 0xa0;
+}
+
+inline enum reg resolve_reg(uint8_t reg) {
 	return (enum reg)(reg & 7);
 }
 

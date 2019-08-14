@@ -266,6 +266,11 @@ uint8_t decode_op(state *state) {
 		*reg ^= state->regs->a;
 		state->flags->c = 0;
 		set_flags(*reg, state->flags);
+	} else if (is_ana(instruction[0])) {
+		uint8_t *reg = get_reg(resolve_reg(instruction[0] & 0xf7), state);
+		*reg &= state->regs->a;
+		state->flags->c = 0;
+		set_flags(*reg, state->flags);
 	} else {
 		switch (instruction[0])
 		{
