@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct {
 	uint8_t s : 1;
@@ -29,7 +30,7 @@ typedef struct {
 	registers *	regs;
 	flags *		flags;
 	uint8_t *	memory;
-	bool		inte; // interrupts enabled
+	bool		inte;           // interrupts enabled
 } state;
 
 void print_state(state const *const state);

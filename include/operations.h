@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "types.h"
+#include "isa.h"
 
 // takes a condition, performs jump if it is met; returns amount to skip PC with, which is 0 if jumping and 3 if not.
 uint16_t call_condition(bool condition, state *const state);
