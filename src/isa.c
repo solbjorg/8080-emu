@@ -12,9 +12,6 @@ uint8_t decode_op(state *state) {
 	disassemble_current_opcode(instruction);
 
 	uint8_t op_width = 1;
-	if (state->regs->pc == 0x143d) {
-		print_state(state);
-	}
 
 	if (is_mov(instruction[0])) { // begin mov
 		enum reg src_reg = resolve_reg(instruction[0]);

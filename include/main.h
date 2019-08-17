@@ -3,6 +3,7 @@
 
 #include "isa.h"
 #include "display.h"
+#include "interrupts.h"
 
 int main(int argc, char *argv[]);
 

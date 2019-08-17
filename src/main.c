@@ -3,6 +3,7 @@
 int main(int argc, char *argv[]) {
 	state *state = new_state(0xffff);
 	SdlContext *context = new_display();
+	timers* timers = new_timers();
 	uint16_t length = 0;
 
 	if (argc < 2) {
@@ -30,10 +31,12 @@ int main(int argc, char *argv[]) {
 		} else {
 			state->regs->pc += op_width;
 		}
+		trigger_interrupts(timers, state);
 		render(context, &state->memory[VRAM]);
 	}
 
 	free_display(context);
 	free_state(state);
+	free_timers(timers);
 	return 0;
 }
