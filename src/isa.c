@@ -203,6 +203,13 @@ uint8_t decode_op(state *state) {
 		*reg &= state->regs->a;
 		state->flags->c = 0;
 		set_flags(*reg, state->flags);
+	} else if (is_rst(instruction[0])) {
+		uint8_t address = ((instruction[0] & 0x38) >> 3) * 8;
+		// push pc
+		write_to_memory(state, state->regs->sp - 1, (state->regs->pc + 2) >> 8);
+    write_to_memory(state, state->regs->sp - 2, state->regs->pc + 2);
+		state->regs->pc = address;
+		op_width = 0;
 	} else {
 		switch (instruction[0])
 		{

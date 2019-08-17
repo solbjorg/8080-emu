@@ -27,6 +27,7 @@ bool is_dad(uint8_t opcode);
 bool is_rotate(uint8_t opcode);
 bool is_xra(uint8_t opcode);
 bool is_ana(uint8_t opcode);
+bool is_rst(uint8_t opcode);
 
 /**
  * Takes in (lowest) 3 bits, resolves it as an enum reg (excluding SP).
