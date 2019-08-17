@@ -12,10 +12,10 @@ void generate_interrupt(state* state, uint8_t irq) {
 // TODO everything below is very specific to space invaders. Decouple this kind of logic.
 void trigger_interrupts(timers* timers, state* state) {
   time_t now = time(NULL);
-  if (now > timers->timer1 + 1) {
+  if (now > timers->timer1 + 1/60) {
     timers->timer1 = now;
     generate_interrupt(state, 8);
-  } else if (now > timers->timer2 + 1) {
+  } else if (now > timers->timer2 + 1/60) {
     timers->timer2 = now;
     generate_interrupt(state, 10);
   }
@@ -23,8 +23,8 @@ void trigger_interrupts(timers* timers, state* state) {
 
 timers* new_timers() {
   timers* timers = malloc(sizeof(timers));
-  timers->timer1 = time(NULL)+0.5;
-  timers->timer2 = time(NULL)+1;
+  timers->timer1 = time(NULL)+1/120;
+  timers->timer2 = time(NULL)+1/60;
   return timers;
 }
 

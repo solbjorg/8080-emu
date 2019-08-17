@@ -300,6 +300,11 @@ uint8_t decode_op(state *state) {
 			state->flags->c = instruction[1] > state->regs->a;
 			break;
 
+		case 0xf6: // ORI
+			state->regs->a |= instruction[1];
+			state->flags->c = 0;
+			set_flags(state->regs->a, state->flags);
+
 		case 0xf3:
 			state->inte = false;
 			break;
